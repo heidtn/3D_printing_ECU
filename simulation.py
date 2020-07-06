@@ -29,24 +29,6 @@ def system_dynamics(t, y, u=0.0):
     ydot[1] = FUME_PRODUCTION - u*y[1]/BOX_VOLUME
     return ydot
 
-def controller_dynamics(t, y, T_target):
-    """
-    Simulates the thermal and toxic buildup along with a lyapanov controller as ODEs
-    """
-    ydot = np.array([0.0, 0.0])
-    UA = (BOX_SURFACE_AREA*BOX_HEAT_TRANSFER)
-    mCp = (AIR_SPECIFIC_HEAT*BOX_AIR_MASS)
-    k = 2
-
-    Tb = (y[0] - T_target)
-    u = (-UA/mCp * Tb**2.0 - 200*Tb/mCp - y[1]*FUME_PRODUCTION - k*(Tb**2.0 + y[1]**2))/(Tb**2.0/BOX_VOLUME/mCp - y[1]**2.0/BOX_VOLUME)
-    if u < 0:
-        u = 0
-
-    ydot[0] = UA/mCp*(T_AMBIENT - y[0]) + HEAT_SOURCE_W/mCp + u*((T_AMBIENT - y[0])/(BOX_VOLUME*mCp))
-    ydot[1] = FUME_PRODUCTION - u*y[1]/BOX_VOLUME
-    return ydot
-
 def plot_vals(t, y):
     fig, ax1 = plt.subplots()
 
@@ -70,20 +52,9 @@ def constant_control_sim(uval):
     plot_vals(sol.t, sol.y)
     plt.show()
 
-def lyapanov_sim(T_target=40):
-    xs = np.linspace(0, RUNTIME, num=200)
-    print(xs)
-    y0 = np.array([START_TEMP, START_FUMES])
-    sol = scipy.integrate.odeint(controller_dynamics, y0, xs, args=(T_target,), tfirst=True)
-    sol = np.swapaxes(sol, 0, 1)
-    print(sol.shape)
-    plot_vals(xs, sol)
-    plt.show()
-
 def main():
-    #no_control_sim()
-    constant_control_sim(0.0)
-    #lyapanov_sim()
+    no_control_sim()
+    constant_control_sim(0.2)
 
 
 if __name__ == "__main__":
