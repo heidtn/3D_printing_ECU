@@ -1,5 +1,6 @@
 #include <DHT.h>
 #include <ESP8266WiFi.h>
+#include <ESP8266mDNS.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
 #include "index.h"
@@ -39,6 +40,11 @@ void setup() {
   server.on("/", handleRoot);      
   server.begin();
   Serial.println("HTTP server started");
+  
+  if (!MDNS.begin("ecu")) {             // Start the mDNS responder for esp8266.local
+    Serial.println("Error setting up MDNS responder!");
+  }
+  Serial.println("mDNS responder started");
 
   analogWriteFreq(25000);
 }
